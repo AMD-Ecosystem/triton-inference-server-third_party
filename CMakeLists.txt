@@ -333,6 +333,10 @@ ExternalProject_Add(libevent
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DEVENT__LIBRARY_TYPE:STRING=STATIC
+    # Debian 12 is glibc 2.36, which has no strlcpy. libevent 2.1.12's
+    # symbol check can still record EVENT__HAVE_STRLCPY, and the samples
+    # then fail to link. Force the bundled implementation.
+    -DEVENT__HAVE_STRLCPY:INTERNAL=0
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/libevent
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
 )
@@ -584,7 +588,7 @@ if (NOT WIN32)
       -DProtobuf_LIBRARIES:STRING=${PROTO_LIB_PATH}
       -DProtobuf_INCLUDE_DIR:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/include
       -DProtobuf_PROTOC_EXECUTABLE:STRING=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/protobuf/bin/protoc
-      -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/${LIB_DIR}/cmake/nlohmann_json
+      -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/share/cmake/nlohmann_json
       ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
       ${_CMAKE_ARGS_VCPKG_TARGET_TRIPLET}
       -DBUILD_SHARED_LIBS:STRING=OFF
